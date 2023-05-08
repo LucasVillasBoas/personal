@@ -26,5 +26,8 @@
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma"
-  }
+  },
+  "description": "Para rodar o projeto, siga os passos:",
+  "keywords": [],
+  "author": ""
 }

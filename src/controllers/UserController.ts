@@ -8,13 +8,14 @@ export default class UserController {
   create = async (req: Request, res: Response) => {
     try {
       const user: UserIn = req.body;
+      user.created_at = new Date();
       const newUser: UserOut = await userModel.create(user);
       res.status(201).json(newUser);
     } catch (e) {
       console.log("Failed to create user", e);
       res.status(500).send({
         error: "USR-01",
-        message: "Failed to create user",
+        message: "Failed to create user"+e
       });
     }
   };
@@ -73,9 +74,10 @@ export default class UserController {
       }
     } catch (e) {
       console.log("Failed to update user", e);
+      const id: number = parseInt(req.params.id);
       res.status(500).send({
         error: "USR-04",
-        message: "Failed to update user",
+        message: "Failed to update user"
       });
     }
   };
@@ -89,7 +91,7 @@ export default class UserController {
       console.log("Failed to delete user", e);
       res.status(500).send({
         error: "USR-05",
-        message: "Failed to delete user",
+        message: "Failed to delete user" + e,
       });
     }
   };

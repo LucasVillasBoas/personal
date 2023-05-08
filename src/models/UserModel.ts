@@ -18,7 +18,7 @@ export default class UserModel {
   get = async (id: number) => {
     return await prisma.user.findUnique({
       where: {
-        id
+        id_user: id
       }
     });
   }
@@ -26,7 +26,8 @@ export default class UserModel {
   delete = async (id: number) => {
     return await prisma.user.delete({
       where: {
-        id
+        id_user: id,
+        //is_active: false
       }
     })
   }
@@ -34,11 +35,23 @@ export default class UserModel {
   update = async (id: number, user: UserIn) => {
     return await prisma.user.update({
       where: {
-        id
+        id_user:id
       },
       data: {
         ...user
       }
     })
   }
+
+  deactivateUser = async (id: number, user: UserIn) => {
+    return await prisma.user.update({
+      where: {
+        id_user:id
+      },
+      data: {
+        ...user
+      }
+    })
+  }
+
 };

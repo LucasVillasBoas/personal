@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "darwin", "darwin-arm64", "linux-musl", "debian-openssl-1.1.x", "darwin"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "darwin", "darwin-arm64", "linux-musl", "debian-openssl-1.1.x", "darwin"]
   previewFeatures = ["interactiveTransactions"]
 }
 
@@ -13,29 +13,61 @@ datasource db {
 }
 
 model User {
-  id                      Int     @id @default(autoincrement())
-  full_name               String
-  email                   String @unique
-  phone                   String
-  cpf                     String @unique
-  password                String
-  transaction_password    String
-  created_at              DateTime @default(now())
-  updated_at              DateTime?
-  address                 Address[]
+  id_user        Int       @id @default(autoincrement()) @unique
+  cpf            String    @db.VarChar(14)
+  name           String    @db.VarChar(50)
+  email          String    @db.VarChar(50)
+  phone          String    @db.VarChar(12)
+  date_birth     DateTime  @db.Date
+  password_login String    @db.VarChar(45)
+  is_active      Boolean   @db.Boolean
+  created_at     DateTime  @default(now()) @db.Date
+  updated_at     DateTime? @db.Date
+  address        Address[]
+  account        Account[]
 }
 
 model Address {
-  id            Int   @id @default(autoincrement())
-  user          User @relation(fields: [userId], references: [id])
-  userId        Int
-  cep           String
-  street        String
-  number        String
-  complement    String
-  neighborhood  String
-  city          String
-  state         String
-  created_at    DateTime @default(now())
-  updated_at    DateTime?
+  id_address   Int       @id @default(autoincrement())
+  user         User      @relation(fields: [userId], references: [id_user])
+  userId       Int
+  zip_code     String    @db.VarChar(8)
+  street       String    @db.VarChar(45)
+  number       String    @db.VarChar(7)
+  complement   String    @db.VarChar(100)
+  neighborhood String    @db.VarChar(45)
+  city         String    @db.VarChar(45)
+  state        String    @db.VarChar(2)
+  is_active    Boolean   @db.Boolean
+  created_at   DateTime  @default(now()) @db.Date
+  updated_at   DateTime? @db.Date
+}
+
+model Account {
+  id_account           Int        @id @default(autoincrement())
+  user                 User       @relation(fields: [user_id_user], references: [id_user])
+  user_id_user         Int
+  account_branch       String     @db.VarChar(4)
+  account_number       String     @db.VarChar(6)
+  balance              Decimal    @db.Decimal(10, 2)
+  type                 String     @db.VarChar(45)
+  password_transaction String     @db.VarChar(45)
+  is_active            Boolean    @db.Boolean
+  created_at           DateTime   @default(now()) @db.Date
+  updated_at           DateTime?  @db.Date
+  transferOrigin       Transfer[] @relation("accountOrigin")
+  transferDestiny      Transfer[] @relation("accountDestiny")
+}
+
+model Transfer {
+  id_transfer        Int      @id @default(autoincrement())
+  accountOrigin      Account  @relation("accountOrigin", fields: [id_account_origin], references: [id_account])
+  accountDestiny     Account  @relation("accountDestiny", fields: [id_account_destiny], references: [id_account])
+  id_account_origin  Int
+  id_account_destiny Int
+  date               DateTime @db.Date
+  amount             Decimal  @db.Decimal(10, 2)
+  status             String   @db.VarChar(45)
+  description        String   @db.VarChar(45)
+  created_at         DateTime @default(now()) @db.Date
 }
