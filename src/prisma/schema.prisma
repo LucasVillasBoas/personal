@@ -13,7 +13,7 @@ datasource db {
 }
 
 model User {
-  id_user        Int       @id @default(autoincrement()) @unique
+  id_user        Int       @id @unique @default(autoincrement())
   cpf            String    @db.VarChar(14)
   name           String    @db.VarChar(50)
   email          String    @db.VarChar(50)
@@ -21,16 +21,16 @@ model User {
   date_birth     DateTime  @db.Date
   password_login String    @db.VarChar(45)
   is_active      Boolean   @db.Boolean
-  created_at     DateTime  @default(now()) @db.Date
-  updated_at     DateTime? @db.Date
+  created_at     DateTime  @default(now()) @db.Timestamp()
+  updated_at     DateTime? @db.Timestamp()
   address        Address[]
   account        Account[]
 }
 
 model Address {
   id_address   Int       @id @default(autoincrement())
-  user         User      @relation(fields: [userId], references: [id_user])
-  userId       Int
+  user         User      @relation(fields: [user_id_user], references: [id_user])
+  user_id_user Int
   zip_code     String    @db.VarChar(8)
   street       String    @db.VarChar(45)
   number       String    @db.VarChar(7)
@@ -39,8 +39,8 @@ model Address {
   city         String    @db.VarChar(45)
   state        String    @db.VarChar(2)
   is_active    Boolean   @db.Boolean
-  created_at   DateTime  @default(now()) @db.Date
-  updated_at   DateTime? @db.Date
+  created_at   DateTime  @default(now()) @db.Timestamp()
+  updated_at   DateTime? @db.Timestamp()
 }
 
 model Account {
@@ -53,21 +53,22 @@ model Account {
   type                 String     @db.VarChar(45)
   password_transaction String     @db.VarChar(45)
   is_active            Boolean    @db.Boolean
-  created_at           DateTime   @default(now()) @db.Date
-  updated_at           DateTime?  @db.Date
+  created_at           DateTime   @default(now()) @db.Timestamp()
+  updated_at           DateTime?  @db.Timestamp()
   transferOrigin       Transfer[] @relation("accountOrigin")
   transferDestiny      Transfer[] @relation("accountDestiny")
 }
 
 model Transfer {
-  id_transfer        Int      @id @default(autoincrement())
-  accountOrigin      Account  @relation("accountOrigin", fields: [id_account_origin], references: [id_account])
-  accountDestiny     Account  @relation("accountDestiny", fields: [id_account_destiny], references: [id_account])
+  id_transfer        Int       @id @default(autoincrement())
+  accountOrigin      Account   @relation("accountOrigin", fields: [id_account_origin], references: [id_account])
+  accountDestiny     Account   @relation("accountDestiny", fields: [id_account_destiny], references: [id_account])
   id_account_origin  Int
   id_account_destiny Int
-  date               DateTime @db.Date
-  amount             Decimal  @db.Decimal(10, 2)
-  status             String   @db.VarChar(45)
-  description        String   @db.VarChar(45)
-  created_at         DateTime @default(now()) @db.Date
+  date               DateTime  @db.Timestamp()
+  amount             Decimal   @db.Decimal(10, 2)
+  status             String    @db.VarChar(45)
+  description        String    @db.VarChar(45)
+  created_at         DateTime  @default(now()) @db.Timestamp()
+  updated_at         DateTime? @db.Timestamp()
 }

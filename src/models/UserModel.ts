@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { group, groupCollapsed } from 'console';
 import { UserIn } from 'dtos/UsersDTO';
 
 const prisma = new PrismaClient();
@@ -12,7 +13,11 @@ export default class UserModel {
   }
 
   getAll = async () => {
-    return await prisma.user.findMany();
+    return await prisma.user.findMany({
+      where: {
+        is_active: true
+      }
+    });
   }
 
   get = async (id: number) => {
@@ -24,10 +29,25 @@ export default class UserModel {
   }
 
   delete = async (id: number) => {
-    return await prisma.user.delete({
+    return await prisma.user.update({
       where: {
-        id_user: id,
-        //is_active: false
+        id_user:id
+      },
+      data: {
+        is_active: false,
+        updated_at: new Date()
+      }
+    })
+  }
+
+  activate = async (id: number) => {
+    return await prisma.user.update({
+      where: {
+        id_user:id
+      },
+      data: {
+        is_active: true,
+        updated_at: new Date()
       }
     })
   }

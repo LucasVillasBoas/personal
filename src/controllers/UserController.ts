@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UserIn, UserOut } from "dtos/UsersDTO";
 import UserModel from "models/UserModel";
+import { DateTime } from "luxon";
 
 const userModel = new UserModel();
 
@@ -8,7 +9,9 @@ export default class UserController {
   create = async (req: Request, res: Response) => {
     try {
       const user: UserIn = req.body;
-      user.created_at = new Date();
+
+      user.date_birth = new Date(user.date_birth.toString() + "T00:00:00.000Z");
+
       const newUser: UserOut = await userModel.create(user);
       res.status(201).json(newUser);
     } catch (e) {
@@ -59,6 +62,9 @@ export default class UserController {
     try {
       const id: number = parseInt(req.params.id);
       const updateUser: UserIn = req.body;
+
+      updateUser.updated_at = new Date();
+
       const userUpdated: UserOut | null = await userModel.update(
         id,
         updateUser
@@ -74,10 +80,9 @@ export default class UserController {
       }
     } catch (e) {
       console.log("Failed to update user", e);
-      const id: number = parseInt(req.params.id);
       res.status(500).send({
         error: "USR-04",
-        message: "Failed to update user"
+        message: "Failed to update user" + e
       });
     }
   };
@@ -95,4 +100,19 @@ export default class UserController {
       });
     }
   };
+
+  activate = async (req: Request, res: Response) => {
+    try {
+      const id: number = parseInt(req.params.id);
+      const userActivated = await userModel.activate(id);
+      res.status(204).json(userActivated);
+    } catch (e) {
+      console.log("Failed to delete user", e);
+      res.status(500).send({
+        error: "USR-05",
+        message: "Failed to delete user" + e,
+      });
+    }
+  };
+
 }

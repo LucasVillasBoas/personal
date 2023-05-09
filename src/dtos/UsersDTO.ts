@@ -8,7 +8,7 @@ export interface UserIn {
   date_birth: Date;
   password_login: string;
   is_active: boolean;
-  update_at: Date;
+  updated_at: Date;
   created_at: Date;
 }
 
