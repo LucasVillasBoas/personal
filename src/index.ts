@@ -3,6 +3,7 @@ import express from "express";
 import usersRoutes from "routes/UserRoute";
 import accountRoutes from "routes/AccountRoute";
 import addressRoutes from "routes/AddressRoute";
+import onboardingRoutes from "routes/OnboardingRoute";
 import { authentication } from "middlewares/auth";
 import { DateTime } from "luxon";
 
@@ -17,4 +18,5 @@ app.get("/", (req, res) => {
 app.use("/users", authentication, usersRoutes);
 app.use("/account", authentication, accountRoutes);
 app.use("/address", authentication, addressRoutes);
+app.use("/onboarding", authentication, onboardingRoutes);
 app.listen(process.env.PORT || 3344);

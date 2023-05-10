@@ -14,9 +14,9 @@ datasource db {
 
 model User {
   id_user        Int       @id @unique @default(autoincrement())
-  cpf            String    @db.VarChar(14)
+  cpf            String    @db.VarChar(14) @unique
   name           String    @db.VarChar(50)
-  email          String    @db.VarChar(50)
+  email          String    @db.VarChar(50) @unique
   phone          String    @db.VarChar(12)
   date_birth     DateTime  @db.Date
   password_login String    @db.VarChar(45)
@@ -48,9 +48,9 @@ model Account {
   user                 User       @relation(fields: [user_id_user], references: [id_user])
   user_id_user         Int
   account_branch       String     @db.VarChar(4)
-  account_number       String     @db.VarChar(6)
+  account_number       String     @db.VarChar(6) @unique
   balance              Decimal    @db.Decimal(10, 2)
-  type                 String     @db.VarChar(45)
+  type                 String     @db.VarChar(45) 
   password_transaction String     @db.VarChar(45)
   is_active            Boolean    @db.Boolean
   created_at           DateTime   @default(now()) @db.Timestamp()

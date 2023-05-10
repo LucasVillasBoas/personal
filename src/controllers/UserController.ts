@@ -10,7 +10,9 @@ export default class UserController {
     try {
       const user: UserIn = req.body;
 
+      // set default values
       user.date_birth = new Date(user.date_birth.toString() + "T00:00:00.000Z");
+      user.is_active = true;
 
       const newUser: UserOut = await userModel.create(user);
       res.status(201).json(newUser);

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AccountIn, AccountOut } from "dtos/AccountDTO";
 import AccountModel from "models/AccountModel";
-import { createAccountNumber } from "functions/functions";
+//import { createAccountNumber } from "functions/functions";
 import { DateTime } from "luxon";
 
 const accountModel = new AccountModel();
@@ -10,9 +10,9 @@ export default class AccountController {
   create = async (req: Request, res: Response) => {
     try {
       const account: AccountIn = req.body;
-      account.account_number = await createAccountNumber();
+      account.account_number = (Math.floor(Math.random() * 6)).toString();
       const newAccount: AccountOut = await accountModel.create(account);
-      res.status(201).json(account.account_number);
+      res.status(201).json(newAccount);
     } catch (e) {
       console.log("Failed to create Account", e);
       res.status(500).send({
