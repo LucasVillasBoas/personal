@@ -21,7 +21,6 @@ export default class UserModel {
       }
     });
   }
-
   get = async (id: number) => {
     return await prisma.user.findUnique({
       where: {
@@ -31,7 +30,25 @@ export default class UserModel {
   }
 
   delete = async (id: number) => {
-    return await prisma.user.update({
+    await prisma.address.updateMany({
+      where: {
+        user_id_user: id
+      },
+      data: {
+        is_active: false,
+        updated_at: new Date()
+      }
+    });
+    await prisma.account.updateMany({
+      where: {
+        user_id_user: id
+      },
+      data: {
+        is_active: false,
+        updated_at: new Date()
+      }
+    });
+    await prisma.user.update({
       where: {
         id_user: id
       },
@@ -39,7 +56,7 @@ export default class UserModel {
         is_active: false,
         updated_at: new Date()
       }
-    })
+    });
   }
 
   activate = async (id: number) => {
@@ -84,42 +101,42 @@ export default class UserModel {
   onboarding = async function (user: UserIn, address : AddressIn, account : AccountIn) {
     const userOut : UserOut = await prisma.user.create({
       data: {
-        cpf: user.cpf,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        date_birth: new Date(user.date_birth.toString() + "T00:00:00.000Z"),
-        password_login: user.password_login,
-        is_active: true
+        ...user,
+        address: {
+          create: {
+            ...address
+          }
+        },
+        account: {
+          create: {
+            ...account
+          }
+        }
       }
     });
+  }
+  
 
-    await prisma.address.create({
-      data: {
-        zip_code: address.zip_code,
-        street: address.street,
-        number: address.number,
-        complement: address.complement,
-        neighborhood: address.neighborhood,
-        city: address.city,
-        state: address.state,
-        is_active: true,
-        user_id_user: userOut.id_user
-      }
-    });
 
-    return await prisma.account.create({
-      data: {
-        user_id_user: userOut.id_user,
-        account_branch: "0001",
-        account_number: (Math.floor(Math.random() * 6)).toString(),
-        balance: 0,
-        type: "TED ou DOC",
-        password_transaction: account.password_transaction,
-        is_active: true
+  ////////////////////////////
+  //          LOGIN         //
+  ////////////////////////////
+
+  getLogin = async (cpf: string) => {
+    return await prisma.user.findUnique({
+      where: {
+        cpf: cpf
+      }
+    })
+  }
+
+
+  searchUser = async (cpf: string) => {
+    return await prisma.user.findUnique({
+      where: {
+        cpf: cpf
       }
     });
-    
   }
 
 };

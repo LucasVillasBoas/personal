@@ -2,16 +2,27 @@ import { Request, Response } from "express";
 import { AddressIn, AddressOut } from "dtos/AddressDTO";
 import AddressModel from "models/AddressModel";
 import { DateTime } from "luxon";
+import UserModel from "models/UserModel";
+import { UserOut } from "dtos/UsersDTO";
 
 const addressModel = new AddressModel();
 
 export default class AddressController {
   create = async (req: Request, res: Response) => {
+    const userModel = new UserModel();
     try {
       const address: AddressIn = req.body;
-      this.changeLastAddressToDesable(address.user_id_user);
-      const newAddress: AddressOut = await addressModel.create(address);
-      res.status(201).json(newAddress);
+      const user : UserOut | null = await userModel.get(address.user_id_user);
+      
+      /* check if user is active */
+      if(user != null && user?.is_active != false) {
+        this.changeLastAddressToDesable(address.user_id_user);
+
+        const newAddress: AddressOut = await addressModel.create(address);
+        res.status(201).json(newAddress);
+      }
+      else
+        res.status(500).json({message: "User does not exist"});
     } catch (e) {
       console.log("Failed to create Address", e);
       res.status(500).send({

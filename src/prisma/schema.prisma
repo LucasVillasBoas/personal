@@ -4,7 +4,7 @@
 generator client {
   provider        = "prisma-client-js"
   binaryTargets   = ["native", "darwin", "darwin-arm64", "linux-musl", "debian-openssl-1.1.x", "darwin"]
-  previewFeatures = ["interactiveTransactions"]
+  //previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -19,7 +19,7 @@ model User {
   email          String    @db.VarChar(50) @unique
   phone          String    @db.VarChar(12)
   date_birth     DateTime  @db.Date
-  password_login String    @db.VarChar(45)
+  password_login String    @db.VarChar(60)
   is_active      Boolean   @db.Boolean
   created_at     DateTime  @default(now()) @db.Timestamp()
   updated_at     DateTime? @db.Timestamp()
@@ -51,7 +51,7 @@ model Account {
   account_number       String     @db.VarChar(6) @unique
   balance              Decimal    @db.Decimal(10, 2)
   type                 String     @db.VarChar(45) 
-  password_transaction String     @db.VarChar(45)
+  password_transaction String     @db.VarChar(60)
   is_active            Boolean    @db.Boolean
   created_at           DateTime   @default(now()) @db.Timestamp()
   updated_at           DateTime?  @db.Timestamp()

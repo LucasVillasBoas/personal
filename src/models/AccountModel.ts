@@ -32,6 +32,17 @@ export default class AccountModel {
     });
   }
 
+  getUserAccount = async (id: number, id_account: number) => {
+    return await prisma.account.findFirst({
+      where: {
+        is_active: true,
+        id_account: id_account,
+        user_id_user: id
+      }
+    });
+  }
+
+
   get = async (id: number) => {
     return await prisma.account.findUnique({
       where: {

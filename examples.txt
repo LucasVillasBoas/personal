@@ -1,0 +1,154 @@
+{
+    "user": {
+        "cpf": "18976462750",
+        "name": "Maria Silva",
+        "email": "maria.silva@gmail.com",
+        "phone": "11987654321",
+        "date_birth": "1990-05-18",
+        "password_login": "Pa$$w0rd!",
+        "account": {
+        "password_transaction": "9876"
+        },
+        "address": {
+        "zip_code": "04567890",
+        "street": "Avenida das Flores",
+        "number": "567",
+        "complement": "apto 123",
+        "neighborhood": "Jardins",
+        "city": "São Paulo",
+        "state": "SP"
+        }
+    }
+},
+{
+    "user": {
+        "cpf": "28614773188",
+        "name": "João Santos",
+        "email": "joao.santos@gmail.com",
+        "phone": "21915445244",
+        "date_birth": "1985-11-30",
+        "password_login": "MyP@ssword123",
+        "account": {
+        "password_transaction": "5432"
+        },
+        "address": {
+        "zip_code": "12345678",
+        "street": "Rua das Palmeiras",
+        "number": "987",
+        "complement": "",
+        "neighborhood": "Centro",
+        "city": "Rio de Janeiro",
+        "state": "RJ"
+        }
+    }
+},
+{
+    "user": {
+        "cpf": "51874888990",
+        "name": "Ana Oliveira",
+        "email": "ana.oliveira@gmail.com",
+        "phone": "21915445244",
+        "date_birth": "1992-09-25",
+        "password_login": "Passw0rd@",
+        "account": {
+        "password_transaction": "7890"
+        },
+        "address": {
+        "zip_code": "54.321-098",
+        "street": "Avenida Central",
+        "number": "456",
+        "complement": "",
+        "neighborhood": "Centro",
+        "city": "Recife",
+        "state": "PE"
+        }
+    }
+},
+{
+    "user": {
+        "cpf": "24880654205",
+        "name": "Juliana Costa",
+        "email": "juliana.costa@gmail.com",
+        "phone": "(31)99999-9999",
+        "date_birth": "1995-12-02",
+        "password_login": "SecurePwd!123",
+        "account": {
+        "password_transaction": "2468"
+        },
+        "address": {
+        "zip_code": "56789012",
+        "street": "Rua das Oliveiras",
+        "number": "789",
+        "complement": "apto 456",
+        "neighborhood": "Jardim das Flores",
+        "city": "Belo Horizonte",
+        "state": "MG"
+        }
+    }
+},
+{
+    "user": {
+        "cpf": "56066203592",
+        "name": "Pedro Rodrigues",
+        "email": "pedro.rodrigues@gmail.com",
+        "phone": "(51) 98765-4321",
+        "date_birth": "1988-08-20",
+        "password_login": "StrongPwd!789",
+        "account": {
+        "password_transaction": "1234"
+        },
+        "address": {
+        "zip_code": "34567890",
+        "street": "Avenida Principal",
+        "number": "567",
+        "complement": "",
+        "neighborhood": "Centro",
+        "city": "Porto Alegre",
+        "state": "RS"
+        }
+    }
+},
+{
+    "user": {
+        "cpf": "78871088964",
+        "name": "Fernanda Santos",
+        "email": "fernanda.santos@gmail.com",
+        "phone": "21999999999",
+        "date_birth": "1993-06-10",
+        "password_login": "Pwd123!@#",
+        "account": {
+        "password_transaction": "9876"
+        },
+        "address": {
+        "zip_code": "45678901",
+        "street": "Rua das Flores",
+        "number": "123",
+        "complement": "",
+        "neighborhood": "Centro",
+        "city": "Niterói",
+        "state": "RJ"
+        }
+    }
+},
+{
+    "user": {
+        "cpf": "27184201892",
+        "name": "Paulo Lima",
+        "email": "paulo.lima@gmail.com",
+        "phone": "51999999999",
+        "date_birth": "1983-04-05",
+        "password_login": "Pwd987!@#",
+        "account": {
+        "password_transaction": "4321"
+        },
+        "address": {
+        "zip_code": "67890123",
+        "street": "Avenida Central",
+        "number": "789",
+        "complement": "apto 123",
+        "neighborhood": "Centro",
+        "city": "Porto Alegre",
+        "state": "RS"
+        }
+    }
+},

@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 
 export interface UserIn {
+  id_user: number;
   cpf: string;
   name: string;
   email: string;
@@ -14,4 +15,6 @@ export interface UserIn {
 
 export interface UserOut {
   id_user: number;
+  password_login: string;
+  is_active: boolean;
 }

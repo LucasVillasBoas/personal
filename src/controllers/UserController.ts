@@ -1,7 +1,13 @@
-import { Request, Response } from "express";
+import { generateUserToken } from "functions/functions";
+import { Request, Response, response } from "express";
 import { UserIn, UserOut } from "dtos/UsersDTO";
-import UserModel from "models/UserModel";
 import { DateTime } from "luxon";
+import { hash } from "bcrypt";
+import UserModel from "models/UserModel";
+import bcrypt from "bcrypt";
+import AddressModel from "models/AddressModel";
+import AccountModel from "models/AccountModel";
+import { AccountOut } from "dtos/AccountDTO";
 
 const userModel = new UserModel();
 
@@ -20,7 +26,7 @@ export default class UserController {
       console.log("Failed to create user", e);
       res.status(500).send({
         error: "USR-01",
-        message: "Failed to create user"+e
+        message: "Failed to create user" + e
       });
     }
   };
@@ -91,9 +97,11 @@ export default class UserController {
 
   delete = async (req: Request, res: Response) => {
     try {
+      const addressModel = new AddressModel();
       const id: number = parseInt(req.params.id);
       const userDeleted = await userModel.delete(id);
       res.status(204).json(userDeleted);
+
     } catch (e) {
       console.log("Failed to delete user", e);
       res.status(500).send({
@@ -117,4 +125,108 @@ export default class UserController {
     }
   };
 
+
+  ///////////////////////////////////////
+  //            GET BALANCE            //
+  ///////////////////////////////////////
+
+  getBalance = async (req: Request, res: Response) => {
+    const accountModel = new AccountModel();
+
+    try {
+      const id: number = parseInt(req.params.id);
+      const id_account = req.body.id_account;
+      if (id_account) {
+        const account = await accountModel.getUserAccount(id, id_account);
+        if(account) {
+          res.status(200).json({
+            saldo: account.balance
+          });
+        }
+        else {
+          res.status(404).json({
+            error: "ACC-01",
+            message: "Account not exist.",
+          });
+        }
+      } else {
+        res.status(404).json({
+          error: "ACC-01",
+          message: "Account can not be empty.",
+        });
+      }
+    } catch (e) {
+      console.log("Failed to get account", e);
+      res.status(500).send({
+        error: "USR-02",
+        message: "Failed to get account",
+      });
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //          LOGIN FUNCTION           //
+  ///////////////////////////////////////
+
+  login = async (req: Request, res: Response) => {
+    try {
+      /* get request */
+      const cpf = req.body.cpf;
+      let password = req.body.password;
+
+      const user: UserOut | null = await userModel.getLogin(cpf);
+      if (user) {
+        bcrypt.compare(password, user.password_login)
+          .then(response => {
+            if (response == true) {
+              res.status(201).json({
+                message: "successfully logged in",
+                token: generateUserToken(user.id_user)
+              });
+            }
+            else
+              res.status(500).json({
+                message: "invalid fields"
+              });
+          })
+          .catch(err => console.error(err.message));
+      }
+      else {
+        res.status(500).json({
+          message: "invalid fields"
+        });
+      }
+
+    } catch (e) {
+      console.log("Failed to to login", e);
+      res.status(500).send({
+        error: "USR-05",
+        message: "Failed to login" + e,
+      });
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //            SEARCH USER            //
+  ///////////////////////////////////////
+
+  searchUser = async (cpf : string) => {
+    try {
+      const newUser: UserOut | null = await userModel.searchUser(cpf);
+      console.log(newUser?.id_user + "<><><><>><><><><><><><<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<>>>>>>>>>>>>>>" + cpf);
+      if (newUser)
+        return true;
+    } catch (e) {
+      console.log("Failed to get user", e);
+      return false;
+    }
+  };
+
+
+
+  
 }

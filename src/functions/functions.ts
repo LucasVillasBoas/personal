@@ -1,40 +1,43 @@
-import { UserIn } from "dtos/UsersDTO"
+import UserController from "controllers/UserController";
+import { UserIn, UserOut } from "dtos/UsersDTO";
+import { sign } from 'jsonwebtoken';
 
-export function isValidCPF(cpf: string) {
-    if (typeof cpf !== "string")
-        return false
-    cpf = cpf.replace(/[\s.-]*/igm, '')
-    if (
-        !cpf ||
-        cpf.length != 11 ||
-        cpf == "00000000000" ||
-        cpf == "11111111111" ||
-        cpf == "22222222222" ||
-        cpf == "33333333333" ||
-        cpf == "44444444444" ||
-        cpf == "55555555555" ||
-        cpf == "66666666666" ||
-        cpf == "77777777777" ||
-        cpf == "88888888888" ||
-        cpf == "99999999999"
-    ) {
-        return false
+export function isValidCPF(cpf: string): boolean {
+    cpf = cpf.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
+  
+    if (cpf.length !== 11) {
+      return false;
     }
-    var soma = 0
-    var resto
-    for (var i = 1; i <= 9; i++)
-        soma = soma + parseInt(cpf.substring(i - 1, i)) * (11 - i)
-    resto = (soma * 10) % 11
-    if ((resto == 10) || (resto == 11)) resto = 0
-    if (resto != parseInt(cpf.substring(9, 10))) return false
-    soma = 0
-    for (var i = 1; i <= 10; i++)
-        soma = soma + parseInt(cpf.substring(i - 1, i)) * (12 - i)
-    resto = (soma * 10) % 11
-    if ((resto == 10) || (resto == 11)) resto = 0
-    if (resto != parseInt(cpf.substring(10, 11))) return false
-    return true
-}
+  
+    // Verifica se todos os dígitos são iguais
+    if (/^(\d)\1+$/.test(cpf)) {
+      return false;
+    }
+  
+    // Validação do primeiro dígito verificador
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+      soma += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let resto = soma % 11;
+    let digitoVerificador = (resto < 2) ? 0 : 11 - resto;
+    if (digitoVerificador !== parseInt(cpf.charAt(9))) {
+      return false;
+    }
+  
+    // Validação do segundo dígito verificador
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+      soma += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    resto = soma % 11;
+    digitoVerificador = (resto < 2) ? 0 : 11 - resto;
+    if (digitoVerificador !== parseInt(cpf.charAt(10))) {
+      return false;
+    }
+  
+    return true;
+  }
 
 export function isValidEmail(email: string) {
     var re = /\S+@\S+\.\S+/;
@@ -62,43 +65,39 @@ export function isValidPhone(telefone: string) {
     return true;
 }
 
-
-function senhaValida(p : string) {
-    var retorno = false;
-    var letrasMaiusculas = /[A-Z]/;
-    var letrasMinusculas = /[a-z]/;
-    var numeros = /[0-9]/;
-    var caracteresEspeciais = /[!|@|#|$|%|^|&|*|(|)|-|_]/;
-    if (p.length > 8) {
-        return retorno;
-    }
-    if (p.length < 8) {
-        return retorno;
-    }
-    var auxMaiuscula = 0;
-    var auxMinuscula = 0;
-    var auxNumero = 0;
-    var auxEspecial = 0;
-    for (var i = 0; i < p.length; i++) {
-        if (letrasMaiusculas.test(p[i]))
-            auxMaiuscula++;
-        else if (letrasMinusculas.test(p[i]))
-            auxMinuscula++;
-        else if (numeros.test(p[i]))
-            auxNumero++;
-        else if (caracteresEspeciais.test(p[i]))
-            auxEspecial++;
-    }
-    if (auxMaiuscula > 0) {
-        if (auxMinuscula > 0) {
-            if (auxNumero > 0) {
-                if (auxEspecial) {
-                    retorno = true;
-                }
-            }
-        }
-    }
-
-
-    return retorno;
+export function isValidPassword(p: string) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+    return regex.test(p);
 }
+
+export function generateUserToken(id: number) {
+
+    const jwt = {
+        expiresIn: '1d'
+    }
+
+    return process.env.SECRET ? sign({}, process.env.SECRET, {
+        subject: id.toString(),
+        expiresIn: jwt.expiresIn
+    }) : false;
+
+}
+
+export function isValidPasswordTransaction(pass: string) {
+    var regex = /^\d{4}$/;
+    return regex.test(pass);
+}
+
+export function num(texto : string) {
+  return texto.replace(/\D/g, '');
+}
+
+export function isValidDateBirth(data: string): boolean {
+  const regexData = /^\d{4}-\d{2}-\d{2}$/;
+  return regexData.test(data);
+}
+
+// export function isValidName(str : string) {
+//     var regex = /^(\w{3,}\s){1,}\w{3,}$/;
+//     return regex.test(str);
+// }
