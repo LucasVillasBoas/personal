@@ -97,4 +97,32 @@ export default class AccountModel {
     })
   }
 
+  ///////////////////////////////////
+  //     FUNCTIONS TO TRANSFER     //
+  ///////////////////////////////////
+
+  searchNumberAccount = async (number: string) => {
+    return await prisma.account.findUnique({
+      where: {
+        account_number: number
+      }
+    });
+  }
+
+  searchCpf = async (cpf: string) => {
+    return await prisma.account.findUnique({
+      where: {
+        account_number: cpf
+      }
+    });
+  }
+
+  getByAccountNumber = async (AccountNumber: string) => {
+    return await prisma.account.findFirst({
+      where: {
+        account_number: AccountNumber,
+        is_active: true
+      }
+    });
+  }
 };

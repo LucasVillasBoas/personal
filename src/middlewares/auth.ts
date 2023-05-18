@@ -82,8 +82,39 @@ export function verifyJwtToken(req: Request, res: Response, next: NextFunction) 
     const secret = process.env.SECRET?.toString();
     if (secret) {
       const decodedToken = jwt.verify(token, secret) as DecodedToken;
-      next();
-      return decodedToken;
+      if(req.params.id == decodedToken.id) {
+        console.log(req.params.id + " AAAA "+decodedToken.id);
+        next();
+        return decodedToken;
+      }
+      return res.status(401).send({ 'message': 'access denied' })
+    }
+    return null;
+  } catch (error) {
+    console.error('Erro ao verificar o token JWT:', error);
+    return null;
+  }
+}
+
+export function verifyJwtTokenMaster(req: Request, res: Response, next: NextFunction) {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    console.log('Token JWT ausente na requisição.');
+    console.log(token);
+    return res.status(401).send({ 'message': 'token invalid' })
+    return null;
+  }
+
+  try {
+    const secret = process.env.SECRET?.toString();
+    if (secret) {
+      const decodedToken = jwt.verify(token, secret) as DecodedToken;
+      if(decodedToken.position == 'MST') {
+        console.log(req.params.id + " AAAA "+decodedToken.id);
+        next();
+        return decodedToken;
+      }
+      return res.status(401).send({ 'message': 'access denied' })
     }
     return null;
   } catch (error) {

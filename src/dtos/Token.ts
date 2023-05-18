@@ -1,9 +1,10 @@
 export interface DecodedToken {
     id: string;
-    username: string;
+    position: string;
 }
 
 export interface UserToken {
     id: number;
+    position: string
     token: string;
 }

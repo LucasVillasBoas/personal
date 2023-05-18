@@ -70,14 +70,14 @@ export function isValidPassword(p: string) {
     return regex.test(p);
 }
 
-export function generateUserToken(id: number) {
+export function generateUserToken(id: number, position: string) {
 
     const jwt = {
         expiresIn: '1d'
     }
 
-    return process.env.SECRET ? sign({}, process.env.SECRET, {
-        subject: id.toString(),
+    return process.env.SECRET ? sign({id:id, position:position}, process.env.SECRET, {
+        //subject: id.toString(),
         expiresIn: jwt.expiresIn
     }) : false;
 
@@ -101,3 +101,13 @@ export function isValidDateBirth(data: string): boolean {
 //     var regex = /^(\w{3,}\s){1,}\w{3,}$/;
 //     return regex.test(str);
 // }
+
+
+export function typeDataToTransfer(data: string): string {
+  if (num(data).length == 6)
+    return "number";
+  if (num(data).length == 11)
+    if(isValidCPF(data))
+      return "cpf"
+  return "err";
+}

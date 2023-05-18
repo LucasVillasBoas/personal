@@ -6,6 +6,7 @@ export interface UserIn {
   name: string;
   email: string;
   phone: string;
+  position: string;
   date_birth: Date;
   password_login: string;
   is_active: boolean;
@@ -17,4 +18,5 @@ export interface UserOut {
   id_user: number;
   password_login: string;
   is_active: boolean;
+  position: string;
 }

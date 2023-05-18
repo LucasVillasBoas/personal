@@ -20,6 +20,7 @@ model User {
   phone          String    @db.VarChar(12)
   date_birth     DateTime  @db.Date
   password_login String    @db.VarChar(60)
+  position       String    @db.VarChar(3)
   is_active      Boolean   @db.Boolean
   created_at     DateTime  @default(now()) @db.Timestamp()
   updated_at     DateTime? @db.Timestamp()

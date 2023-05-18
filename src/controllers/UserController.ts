@@ -12,24 +12,24 @@ import { AccountOut } from "dtos/AccountDTO";
 const userModel = new UserModel();
 
 export default class UserController {
-  create = async (req: Request, res: Response) => {
-    try {
-      const user: UserIn = req.body;
+  // create = async (req: Request, res: Response) => {
+  //   try {
+  //     const user: UserIn = req.body;
 
-      // set default values
-      user.date_birth = new Date(user.date_birth.toString() + "T00:00:00.000Z");
-      user.is_active = true;
+  //     // set default values
+  //     user.date_birth = new Date(user.date_birth.toString() + "T00:00:00.000Z");
+  //     user.is_active = true;
 
-      const newUser: UserOut = await userModel.create(user);
-      res.status(201).json(newUser);
-    } catch (e) {
-      console.log("Failed to create user", e);
-      res.status(500).send({
-        error: "USR-01",
-        message: "Failed to create user" + e
-      });
-    }
-  };
+  //     const newUser: UserOut = await userModel.create(user);
+  //     res.status(201).json(newUser);
+  //   } catch (e) {
+  //     console.log("Failed to create user", e);
+  //     res.status(500).send({
+  //       error: "USR-01",
+  //       message: "Failed to create user" + e
+  //     });
+  //   }
+  // };
 
   get = async (req: Request, res: Response) => {
     try {
@@ -183,7 +183,7 @@ export default class UserController {
             if (response == true) {
               res.status(201).json({
                 message: "successfully logged in",
-                token: generateUserToken(user.id_user)
+                token: generateUserToken(user.id_user, user.position)
               });
             }
             else

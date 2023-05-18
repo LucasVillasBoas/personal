@@ -3,6 +3,11 @@ import { AccountIn, AccountOut } from "dtos/AccountDTO";
 import AccountModel from "models/AccountModel";
 //import { createAccountNumber } from "functions/functions";
 import { DateTime } from "luxon";
+import { TransferIn } from "dtos/TransferDTO";
+import TransferModel from "models/TransferModel";
+import { typeDataToTransfer } from "functions/functions";
+import UserModel from "models/UserModel";
+import { UserIn, UserOut } from "dtos/UsersDTO";
 
 const accountModel = new AccountModel();
 
@@ -17,7 +22,7 @@ export default class AccountController {
       console.log("Failed to create Account", e);
       res.status(500).send({
         error: "USR-01",
-        message: "Failed to create Account"+e
+        message: "Failed to create Account" + e
       });
     }
   };
@@ -127,5 +132,4 @@ export default class AccountController {
       });
     }
   };
-
 }

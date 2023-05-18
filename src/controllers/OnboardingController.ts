@@ -23,12 +23,13 @@ export default class OnboardingController {
       user.cpf = num(user.cpf);
       user.phone = num(user.phone);
       address.zip_code = num(address.zip_code); 
+      user.position = "USR";
 
       /* search user */
       if (await userModel.searchUser(user.cpf) == null) {
         
         /* user format data */
-        user.date_birth = new Date(user.date_birth.toString() + "T00:00:00.000Z");
+        user.date_birth = new Date(user.date_birth + "T00:00:00.000Z");
         user.password_login = await hash(user.password_login, 8);
         user.is_active = true;
 

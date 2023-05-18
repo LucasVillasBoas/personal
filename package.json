@@ -6,7 +6,7 @@
   "scripts": {
     "start": "prisma migrate deploy && ts-node-dev --poll -r tsconfig-paths/register --respawn src/index.ts",
     "debug": "node -r ts-node/register --inspect=0.0.0.0:9229 src/app.ts",
-    "dev": "prisma migrate deploy && ts-node-dev --poll -r tsconfig-paths/register --exit-child --respawn --transpile-only src/index.ts"
+    "dev": "prisma migrate deploy && ts-node-dev --poll -r tsconfig-paths/register --exit-child --inspect=0.0.0.0:9229 --respawn --transpile-only src/index.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

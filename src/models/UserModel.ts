@@ -92,14 +92,14 @@ export default class UserModel {
       }
     })
   }
-  
+
 
   ////////////////////////////
   //       ONBOARDING       //
   ////////////////////////////
 
-  onboarding = async function (user: UserIn, address : AddressIn, account : AccountIn) {
-    const userOut : UserOut = await prisma.user.create({
+  onboarding = async function (user: UserIn, address: AddressIn, account: AccountIn) {
+    return await prisma.user.create({
       data: {
         ...user,
         address: {
@@ -115,7 +115,7 @@ export default class UserModel {
       }
     });
   }
-  
+
 
 
   ////////////////////////////
@@ -131,13 +131,22 @@ export default class UserModel {
   }
 
 
-  searchUser = async (cpf: string) => {
+  searchUser = async (cpf: string)=> {
     return await prisma.user.findUnique({
       where: {
         cpf: cpf
       }
     });
   }
+
+
+  // searchUserByAccount = async (AccountNumber: string) => {
+  //   return await prisma.account.findUnique({
+  //     where: {
+  //       account_number: AccountNumber
+  //     }
+  //   });
+  // }
 
 };
 
