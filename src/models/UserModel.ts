@@ -21,10 +21,30 @@ export default class UserModel {
       }
     });
   }
+
   get = async (id: number) => {
     return await prisma.user.findUnique({
       where: {
         id_user: id
+      }
+    });
+  }
+
+  getProfileInfo = async (id: number) => {
+    return await prisma.user.findUnique({
+      where: {
+        id_user: id
+      },
+      select: {
+        password_login: false,
+        id_user: true,
+        cpf: true,
+        name: true,
+        email: true,
+        phone: true,
+        date_birth: true,
+        created_at: true,
+        updated_at: true,
       }
     });
   }
@@ -71,13 +91,13 @@ export default class UserModel {
     })
   }
 
-  update = async (id: number, user: UserIn) => {
+  update = async (id: number, user: UserIn | undefined) => {
     return await prisma.user.update({
       where: {
         id_user: id
       },
       data: {
-        ...user
+        name: user?.name
       }
     })
   }

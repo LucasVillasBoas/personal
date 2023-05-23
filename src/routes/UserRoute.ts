@@ -10,7 +10,7 @@ const userController = new UserController();
 routes.get('/', verifyJwtTokenMaster, userController.getAll);
 routes.get('/:id', verifyJwtToken, userController.get);
 routes.put('/:id', verifyJwtToken,userController.update);
-routes.put('/activate/:id', verifyJwtToken, userController.activate);
+routes.put('/activate/:id', verifyJwtTokenMaster, userController.activate);
 routes.delete('/:id', verifyJwtToken, userController.delete);
 
 

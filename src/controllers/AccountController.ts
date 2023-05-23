@@ -8,6 +8,259 @@ import UserModel from "models/UserModel";
 const accountModel = new AccountModel();
 
 export default class AccountController {
+
+  ///////////////////////////////////////
+  //         GET PROFILE INFO          //
+  ///////////////////////////////////////
+
+  getProfileInfo = async (req: Request, res: Response) => {
+    try {
+      const userModel = new UserModel();
+      const idAccount = req.query.id_account;
+      const idUser = req.params.id;
+
+      /* query db to get info */
+      const account = await accountModel.getProfileAccount(Number(idAccount));
+      const user = await userModel.getProfileInfo(Number(idUser));
+
+      if (user?.id_user == account?.user_id_user) {
+        res.status(200).json({
+          user: {
+            data: {
+              ...user
+            },
+            account: {
+              ...account
+            }
+          }
+        });
+      }
+      else
+        res.status(500).send({ error: "GPI-01", message: "Account or User not exist" });
+
+
+
+    } catch (e) {
+      console.log("Failed to get account", e);
+      res.status(500).send({ error: "STT-02", message: "Failed to get account" + e });
+    }
+  };
+
+
+
+
+
+  ///////////////////////////////////////
+  //       GET DEFAULT STATEMENT       //
+  ///////////////////////////////////////
+
+  getDefaultStatement = async (req: Request, res: Response) => {
+    try {
+      const dataParams = req.query;
+      const firstDate = dataParams.firstDate?.toString();
+      const lastDate = dataParams.lastDate?.toString();
+      const ord = dataParams.ord?.toString();
+      const take = String(dataParams.take);
+      const skip = String(dataParams.skip);
+
+      let idAccount;
+      let returnStatement;
+      let typeOperation = typeOperationStatement(firstDate, lastDate);
+
+      if (dataParams.id_account?.toString())
+        idAccount = parseInt(dataParams.id_account?.toString());
+
+      if (req.params.id && idAccount) {
+        const account = await accountModel.get(idAccount);
+
+        if (account && account.user_id_user == parseInt(req.params.id)) {
+          switch (typeOperation) {
+            case 'a':
+              returnStatement = await this.getStatementAll(req, res, idAccount, parseInt(req.params.id), ord, take, skip);
+              break;
+            case 'p':
+              returnStatement = await this.getStatementByPeriod(req, res, firstDate, lastDate, idAccount, parseInt(req.params.id), ord, take, skip);
+              break;
+            case 't':
+              returnStatement = await this.getStatementToday(req, res, firstDate, idAccount, parseInt(req.params.id), ord, take, skip);
+              break;
+          }
+          if (returnStatement) {
+            res.status(200).json({ navegation: returnStatement.navigation, transfer: showFormatStatement(returnStatement.statemenet, idAccount) });
+          } else
+            res.status(200).json({ message: "nao possui transações" });
+
+        }
+        else
+          res.status(404).json({ error: "STT-02", message: "Operation invalid.", });
+      }
+      else
+        res.status(404).send({ error: "STT-01", message: "Fields can not be empty.", });
+    } catch (e) {
+      console.log("Failed to get account", e);
+      res.status(500).send({ error: "STT-02", message: "Failed to get account" + e });
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //        GET DETAIL STATEMENT       //
+  ///////////////////////////////////////
+
+  getDetailStatement = async (req: Request, res: Response) => {
+    try {
+      const transferModel = new TransferModel();
+      const accountModel = new AccountModel();
+      const userModel = new UserModel();
+      const dataParams = req.query;
+
+      let idAccount;
+      let idTransfer;
+
+      if (dataParams.id_account?.toString())
+        idAccount = parseInt(dataParams.id_account?.toString());
+
+      if (dataParams.id_transfer?.toString())
+        idTransfer = parseInt(dataParams.id_transfer?.toString());
+
+      if (req.params.id && idAccount && idTransfer) {
+        const transfer = await transferModel.get(idTransfer);
+
+        if (transfer) {
+
+          if (transfer.id_account_destiny == idAccount || transfer.id_account_origin) {
+
+            const account = await accountModel.get(idAccount);
+            let auxAccount
+            let userOrigin;
+            let userDestiny;
+
+            if (idAccount == transfer.id_account_destiny) {
+              auxAccount = await accountModel.get(transfer.id_account_origin);
+              if (auxAccount)
+                userOrigin = await userModel.get(auxAccount?.user_id_user);
+              userDestiny = await userModel.get(parseInt(req.params.id));
+            }
+            else {
+              auxAccount = await accountModel.get(transfer.id_account_destiny);
+              userDestiny = await userModel.get(parseInt(req.params.id));
+              if (auxAccount)
+                userOrigin = await userModel.get(auxAccount.user_id_user);
+            }
+
+            if (account && userOrigin && userDestiny)
+              res.status(200).send({ transfer_detail: showDetailTransaction(transfer, account?.user_id_user, userOrigin, userDestiny, account, idAccount) });
+
+          }
+          else
+            res.status(404).json({ error: "STT-02", message: "Operation invalid.", });
+
+        }
+        else
+          res.status(404).json({ error: "STT-02", message: "Operation invalid.", });
+      }
+      else
+        res.status(404).json({ error: "STT-01", message: "Fields can not be empty.", });
+    } catch (e) {
+      console.log("Failed to get account", e);
+      res.status(500).send({ error: "STT-02", message: "Failed to get account" + e });
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //         GET STATEMENT ALL         //
+  ///////////////////////////////////////
+
+  getStatementAll = async (req: Request, res: Response, id: number, idUser: number, ord: string | undefined, take: string, skip: string) => {
+    try {
+      const filterInOut = req.query.filter?.toString();
+      const transferModel = new TransferModel();
+      let statemenet;
+
+      if (filterInOut) {
+        if (filterInOut == 'in')
+          statemenet = await transferModel.getStatementAllIn(id, ord, take, skip);
+        else
+          statemenet = await transferModel.getStatementAllOut(id, ord, take, skip);
+      }
+      else
+        statemenet = await transferModel.getStatementAll(id, ord, take, skip);
+
+      if (statemenet)
+        return statemenet;
+      else
+        return;
+    } catch (e) {
+      console.log("Failed to get account", e);
+      return;
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //       GET STATEMENT PERIOD        //
+  ///////////////////////////////////////
+
+  getStatementByPeriod = async (req: Request, res: Response, first: string | undefined, last: string | undefined, id: number, idUser: number, ord: string | undefined, take: string, skip: string) => {
+    try {
+      const filterInOut = req.query.filter?.toString();
+      const transferModel = new TransferModel();
+      let statemenet;
+
+      if (filterInOut && first && last) {
+        if (filterInOut == 'in')
+          statemenet = await transferModel.getStatementByPeriodIn(id, new Date(first), new Date(last), ord, take, skip);
+        else
+          statemenet = await transferModel.getStatementByPeriodOut(id, new Date(first), new Date(last), ord, take, skip);
+      }
+      else if (first && last)
+        statemenet = await transferModel.getStatementByPeriod(id, new Date(first), new Date(last), ord, take, skip);
+
+      if (statemenet)
+        return statemenet;
+      else
+        return;
+
+    } catch (e) {
+      console.log("Failed to get account", e);
+      return;
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //        GET STATEMENT TODAY        //
+  ///////////////////////////////////////
+
+  getStatementToday = async (req: Request, res: Response, first: string | undefined, id: number, idUser: number, ord: string | undefined, take: string, skip: string) => {
+    try {
+      const transferModel = new TransferModel();
+      let statemenet;
+      if (first)
+        statemenet = await transferModel.getStatementByPeriod(id, new Date(first), new Date(), ord, take, skip);
+
+      if (statemenet)
+        return statemenet;
+      else
+        res.status(404).json({ error: "STT-03", message: "Operation has been canceled.", });
+
+    } catch (e) {
+      console.log("Failed to get account", e);
+      res.status(500).send({ error: "USR-02", message: "Failed to get account" + e });
+    }
+  };
+
+
+
+  ///////////////////////////////////////
+  //          DEFAULT FUNCTIONS        //
+  ///////////////////////////////////////
+
   create = async (req: Request, res: Response) => {
     try {
       const account: AccountIn = req.body;
@@ -128,287 +381,4 @@ export default class AccountController {
       });
     }
   };
-
-
-
-
-
-  ///////////////////////////////////////
-  //       GET DEFAULT STATEMENT       //
-  ///////////////////////////////////////
-
-  getDefaultStatement = async (req: Request, res: Response) => {
-    try {
-      const dataParams = req.query;
-      const firstDate = dataParams.firstDate?.toString();
-      const lastDate = dataParams.lastDate?.toString();
-      const ord = dataParams.ord?.toString();
-      const take = String(dataParams.take);
-      const skip = String(dataParams.skip);
-
-      let idAccount;
-      let returnStatement;
-      let totTransfer;
-      let typeOperation = typeOperationStatement(firstDate, lastDate);
-
-      if (dataParams.id_account?.toString())
-        idAccount = parseInt(dataParams.id_account?.toString());
-
-      if (req.params.id && idAccount) {
-        const account = await accountModel.get(idAccount);
-
-        if (account && account.user_id_user == parseInt(req.params.id)) {
-          switch (typeOperation) {
-            case 'a':
-              returnStatement = await this.getStatementAll(req, res, idAccount, parseInt(req.params.id), ord, take, skip);
-              break;
-            case 'p':
-              returnStatement = await this.getStatementByPeriod(req, res, firstDate, lastDate, idAccount, parseInt(req.params.id), ord, take, skip);
-              break;
-            case 't':
-              returnStatement = await this.getStatementToday(req, res, firstDate, idAccount, parseInt(req.params.id), ord, take, skip);
-              break;
-          }
-          if (returnStatement) {
-            res.status(200).json({ navegation:returnStatement.navigation, transfer: showFormatStatement(returnStatement.statemenet, idAccount) });
-          } else
-            res.status(200).json({ message: "nao possui transações" });
-
-        }
-        else
-          res.status(404).json({ error: "STT-02", message: "Operation invalid.", });
-      }
-      else
-        res.status(404).send({ error: "STT-01", message: "Fields can not be empty.", });
-    } catch (e) {
-      console.log("Failed to get account", e);
-      res.status(500).send({ error: "STT-02", message: "Failed to get account" + e });
-    }
-  };
-
-
-
-
-  getDetailStatement = async (req: Request, res: Response) => {
-    try {
-      const transferModel = new TransferModel();
-      const accountModel = new AccountModel();
-      const userModel = new UserModel();
-      const dataParams = req.query;
-
-      let idAccount;
-      let idTransfer;
-
-      if (dataParams.id_account?.toString())
-        idAccount = parseInt(dataParams.id_account?.toString());
-
-      if (dataParams.id_transfer?.toString())
-        idTransfer = parseInt(dataParams.id_transfer?.toString());
-
-      if (req.params.id && idAccount && idTransfer) {
-        const transfer = await transferModel.get(idTransfer);
-
-        if (transfer) {
-
-          if (transfer.id_account_destiny == idAccount || transfer.id_account_origin) {
-
-            const account = await accountModel.get(idAccount);
-            let auxAccount
-            let userOrigin;
-            let userDestiny;
-
-            if (idAccount == transfer.id_account_destiny) {
-              auxAccount = await accountModel.get(transfer.id_account_origin);
-              if (auxAccount)
-                userOrigin = await userModel.get(auxAccount?.user_id_user);
-              userDestiny = await userModel.get(parseInt(req.params.id));
-            }
-            else {
-              auxAccount = await accountModel.get(transfer.id_account_destiny);
-              userDestiny = await userModel.get(parseInt(req.params.id));
-              if (auxAccount)
-                userOrigin = await userModel.get(auxAccount.user_id_user);
-            }
-
-            if (account && userOrigin && userDestiny)
-              res.status(200).send({ transfer_detail: showDetailTransaction(transfer, account?.user_id_user, userOrigin, userDestiny, account, idAccount) });
-
-          }
-          else
-            res.status(404).json({ error: "STT-02", message: "Operation invalid.", });
-
-        }
-        else
-          res.status(404).json({ error: "STT-02", message: "Operation invalid.", });
-      }
-      else
-        res.status(404).json({ error: "STT-01", message: "Fields can not be empty.", });
-    } catch (e) {
-      console.log("Failed to get account", e);
-      res.status(500).send({ error: "STT-02", message: "Failed to get account" + e });
-    }
-  };
-
-
-
-
-  ///////////////////////////////////////
-  //         GET STATEMENT ALL         //
-  ///////////////////////////////////////
-
-
-  getStatementAll = async (req: Request, res: Response, id: number, idUser: number, ord: string | undefined, take : string, skip : string) => {
-    try {
-      const filterInOut = req.query.filter?.toString();
-      const transferModel = new TransferModel();
-      let statemenet;
-
-      if (filterInOut) {
-        if (filterInOut == 'in')
-          statemenet = await transferModel.getStatementAllIn(id, ord, take, skip);
-        else
-          statemenet = await transferModel.getStatementAllOut(id, ord, take, skip);
-      }
-      else
-        statemenet = await transferModel.getStatementAll(id, ord, take, skip);
-
-      if (statemenet)
-        return statemenet;
-      else
-        return;
-    } catch (e) {
-      console.log("Failed to get account", e);
-      return;
-    }
-  };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  ///////////////////////////////////////
-  //       GET STATEMENT PERIOD        //
-  ///////////////////////////////////////
-
-  getStatementByPeriod = async (req: Request, res: Response, first: string | undefined, last: string | undefined, id: number, idUser: number, ord: string | undefined, take : string, skip : string) => {
-    try {
-      const filterInOut = req.query.filter?.toString();
-      const transferModel = new TransferModel();
-      let statemenet;
-
-      if (filterInOut && first && last) {
-        if (filterInOut == 'in')
-          statemenet = await transferModel.getStatementByPeriodIn(id, new Date(first), new Date(last), ord, take, skip);
-        else
-          statemenet = await transferModel.getStatementByPeriodOut(id, new Date(first), new Date(last), ord, take, skip);
-      }
-      else if (first && last)
-        statemenet = await transferModel.getStatementByPeriod(id, new Date(first), new Date(last), ord, take, skip);
-
-      if (statemenet)
-        return statemenet;
-      else
-        return;
-
-    } catch (e) {
-      console.log("Failed to get account", e);
-      return;
-    }
-  };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  ///////////////////////////////////////
-  //        GET STATEMENT TODAY        //
-  ///////////////////////////////////////
-
-  getStatementToday = async (req: Request, res: Response, first: string | undefined, id: number, idUser: number, ord: string | undefined, take : string, skip : string) => {
-    try {
-      const transferModel = new TransferModel();
-      let statemenet;
-      if (first)
-        statemenet = await transferModel.getStatementByPeriod(id, new Date(first), new Date(), ord, take, skip);
-
-      if (statemenet)
-        return statemenet;
-      else
-        res.status(404).json({ error: "STT-03", message: "Operation has been canceled.", });
-
-    } catch (e) {
-      console.log("Failed to get account", e);
-      res.status(500).send({ error: "USR-02", message: "Failed to get account" + e });
-    }
-  };
-
-
-
-
-
-
 }
-
-
-// if (idUser && idAccount) {
-
-//   /* check if account and user exist */
-//   const account = await accountModel.get(idAccount);
-
-//   if (account) {
-
-//     /* check if user account and user */
-//     if (account.user_id_user == idUser) {
-
-//       /* make operation */
-//       if (isValidDate(lasDate)) {
-
-//         /* FIRST DATE AND LAST DATE VALID TO FILTER */
-//         const statemenet = await transferModel.getDefaultStatement(idAccount, firDate, new Date(lasDate));
-
-//         if (statemenet)
-//           res.status(404).json(statemenet);
-//         else
-//           res.status(404).json({ error: "STT-03", message: "Operation has been canceled.", });
-//       }
-//       else {
-//         /* JUST FIRST DATE VALID TO FILTER */
-//         const statemenet = await transferModel.getDefaultStatementByFirstDate(idAccount, firDate, lasDate);
-
-//         if (statemenet)
-//           res.status(404).json(statemenet);
-//         else
-//           res.status(404).json({ error: "STT-03", message: "Operation has been canceled.", });
-//       }
-//     }
-//     else
-//       res.status(404).json({ error: "STT-03", message: "Operation has been canceled.", });
-//   }
-//   else
-//     res.status(404).json({ error: "STT-02", message: "Account invalid.", });
-
-// } else
-//   res.status(404).json({ error: "STT-01", message: "Fields can not be empty.", });

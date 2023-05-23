@@ -51,6 +51,24 @@ export default class AccountModel {
     });
   }
 
+  getProfileAccount = async (id: number) => {
+    return await prisma.account.findUnique({
+      where: {
+        id_account: id
+      },
+      select: {
+        user_id_user: true, 
+        id_account: true,
+        account_branch:true,
+        account_number:true,
+        balance:true,
+        type:true,
+        created_at:true,
+        updated_at:true
+      }
+    });
+  }
+
   delete = async (id: number) => {
     return await prisma.account.update({
       where: {
