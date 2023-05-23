@@ -3,6 +3,7 @@ import AccountController from 'controllers/AccountController';
 import { verifyJwtToken, verifyJwtTokenMaster } from 'middlewares/auth';
 import TransferController from 'controllers/TransferController';
 import UserController from 'controllers/UserController';
+import { authStatement } from 'middlewares/authStatement';
 
 const routes = Router()
 
@@ -27,6 +28,8 @@ routes.put('/:id', /*verifyJwtTokenMaster,*/ accountController.update);
 
 routes.post('/transfer/:id', verifyJwtToken, transferController.transfer);
 routes.get('/balance/:id', verifyJwtToken, userController.getBalance);
+routes.get('/statement/default/:id', authStatement, verifyJwtToken, accountController.getDefaultStatement);
+routes.get('/statement/detail/:id', authStatement, verifyJwtToken, accountController.getDetailStatement);
 
 
 

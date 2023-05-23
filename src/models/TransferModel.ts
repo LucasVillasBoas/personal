@@ -47,4 +47,295 @@ export default class TransferModel {
     });
   }
 
+  get = async (idTransfer: number) => {
+    return await prisma.transfer.findUnique({
+      where: {
+        id_transfer: idTransfer
+      }
+    });
+  }
+
+  getStatementByPeriod = async (idAccount: number, firstDate: Date, lastDate: Date, ord: string | undefined, take: string, skip: string) => {
+    lastDate.setDate(lastDate.getDate() + 1);
+
+    try {
+      if (ord == 'desc' || ord == 'asc' || ord == undefined) {
+        const [totalRegister, recordsQuery] = await prisma.$transaction([
+          prisma.transfer.count({
+            where: {
+              OR: [
+                { id_account_destiny: idAccount },
+                { id_account_origin: idAccount },
+              ],
+              AND: [
+                { date: { gte: firstDate } },
+                { date: { lte: lastDate } }
+              ]
+            }
+          }),
+  
+          prisma.transfer.findMany({
+            orderBy: {
+              created_at: ord
+            },
+            where: {
+              OR: [
+                { id_account_destiny: idAccount },
+                { id_account_origin: idAccount },
+              ],
+              AND: [
+                { date: { gte: firstDate } },
+                { date: { lte: lastDate } }
+              ]
+            },
+            take: Number(take),
+            skip: Number(skip)
+          })
+  
+        ]);
+  
+        return {
+          navigation: {
+            skip: skip,
+            take: take,
+            total: totalRegister
+          },
+          statemenet: recordsQuery
+        };
+      }
+    }
+    catch (e) {
+      console.log("erro transaction: " + e);
+    }
+  }
+
+  
+
+  getStatementByPeriodIn = async (idAccount: number, firstDate: Date, lastDate: Date, ord: string | undefined, take: string, skip: string) => {
+    lastDate.setDate(lastDate.getDate() + 1);
+
+    try {
+      if (ord == 'desc' || ord == 'asc' || ord == undefined) {
+        const [totalRegister, recordsQuery] = await prisma.$transaction([
+          prisma.transfer.count({
+            where: {
+              AND: [
+                { date: { gte: firstDate } },
+                { date: { lte: lastDate } },
+                { id_account_destiny: idAccount },
+              ]
+            }
+          }),
+
+          prisma.transfer.findMany({
+            orderBy: {
+              created_at: ord
+            },
+            where: {
+              AND: [
+                { date: { gte: firstDate } },
+                { date: { lte: lastDate } },
+                { id_account_destiny: idAccount },
+              ]
+            },
+            take: Number(take),
+            skip: Number(skip)
+          })
+
+        ]);
+
+        return {
+          navigation: {
+            skip: skip,
+            take: take,
+            total: totalRegister
+          },
+          statemenet: recordsQuery
+        };
+      }
+    }
+    catch (e) {
+      console.log("erro transaction: " + e);
+    }
+  }
+
+  getStatementByPeriodOut = async (idAccount: number, firstDate: Date, lastDate: Date, ord: string | undefined, take: string, skip: string) => {
+    lastDate.setDate(lastDate.getDate() + 1);
+    try {
+      if (ord == 'desc' || ord == 'asc' || ord == undefined) {
+        const [totalRegister, recordsQuery] = await prisma.$transaction([
+          prisma.transfer.count({
+            where: {
+              AND: [
+                { date: { gte: firstDate } },
+                { date: { lte: lastDate } },
+                { id_account_origin: idAccount },
+              ]
+            }
+          }),
+
+          prisma.transfer.findMany({
+            orderBy: {
+              created_at: ord
+            },
+            where: {
+              AND: [
+                { date: { gte: firstDate } },
+                { date: { lte: lastDate } },
+                { id_account_origin: idAccount },
+              ]
+            },
+            take: Number(take),
+            skip: Number(skip)
+          })
+
+        ]);
+
+        return {
+          navigation: {
+            skip: skip,
+            take: take,
+            total: totalRegister
+          },
+          statemenet: recordsQuery
+        };
+      }
+    }
+    catch (e) {
+      console.log("erro transaction: " + e);
+    }
+  }
+
+
+  getStatementAll = async (idAccount: number, ord: string | undefined, take: string, skip: string) => {
+    try {
+      if (ord == 'desc' || ord == 'asc' || ord == undefined) {
+        const [totalRegister, recordsQuery] = await prisma.$transaction([
+          prisma.transfer.count({
+            where: {
+              AND: [
+                { id_account_destiny: idAccount },
+                { id_account_origin: idAccount },
+              ]
+            }
+          }),
+
+          prisma.transfer.findMany({
+            orderBy: {
+              created_at: ord
+            },
+            where: {
+              AND: [
+                { id_account_destiny: idAccount },
+                { id_account_origin: idAccount },
+              ]
+            },
+            take: Number(take),
+            skip: Number(skip)
+          })
+
+        ]);
+
+        return {
+          navigation: {
+            skip: skip,
+            take: take,
+            total: totalRegister
+          },
+          statemenet: recordsQuery
+        };
+      }
+    }
+    catch (e) {
+      console.log("erro transaction: " + e);
+    }
+  }
+
+
+
+
+  getStatementAllIn = async (idAccount: number, ord: string | undefined, take: string, skip: string) => {
+    try {
+      if (ord == 'desc' || ord == 'asc' || ord == undefined) {
+        const [totalRegister, recordsQuery] = await prisma.$transaction([
+          prisma.transfer.count({
+            where: {
+              AND: [
+                { id_account_destiny: idAccount },
+              ]
+            }
+          }),
+
+          prisma.transfer.findMany({
+            orderBy: {
+              created_at: ord
+            },
+            where: {
+              AND: [
+                { id_account_destiny: idAccount },
+              ]
+            },
+            take: Number(take),
+            skip: Number(skip)
+          })
+
+        ]);
+
+        return {
+          navigation: {
+            skip: skip,
+            take: take,
+            total: totalRegister
+          },
+          statemenet: recordsQuery
+        };
+      }
+    }
+    catch (e) {
+      console.log("erro transaction: " + e);
+    }
+  }
+
+
+  getStatementAllOut = async (idAccount: number, ord: string | undefined, take: string, skip: string) => {
+    try {
+      if (ord == 'desc' || ord == 'asc' || ord == undefined) {
+        const [totalRegister, recordsQuery] = await prisma.$transaction([
+          prisma.transfer.count({
+            where: {
+              AND: [
+                { id_account_origin: idAccount },
+              ]
+            }
+          }),
+
+          prisma.transfer.findMany({
+            orderBy: {
+              created_at: ord
+            },
+            where: {
+              AND: [
+                { id_account_origin: idAccount },
+              ]
+            },
+            take: Number(take),
+            skip: Number(skip)
+          })
+
+        ]);
+
+        return {
+          navigation: {
+            skip: skip,
+            take: take,
+            total: totalRegister
+          },
+          statemenet: recordsQuery
+        };
+      }
+    }
+    catch (e) {
+      console.log("erro transaction: " + e);
+    }
+  }
 };

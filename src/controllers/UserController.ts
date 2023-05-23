@@ -135,9 +135,9 @@ export default class UserController {
 
     try {
       const id: number = parseInt(req.params.id);
-      const id_account = req.body.id_account;
+      let id_account = req.query.idAccount;
       if (id_account) {
-        const account = await accountModel.getUserAccount(id, id_account);
+        const account = await accountModel.getUserAccount(id, parseInt(id_account.toString()));
         if(account) {
           res.status(200).json({
             saldo: account.balance
